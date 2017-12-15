@@ -1,0 +1,21 @@
+Input:--
+10101 sasidhar nlr M
+20134 nagaraj rcr M
+20564 imthiyaz glb M
+20189 manjunath rcr M
+30178 andal mdr F
+28145 lakshmi rcr F
+14567 srinivas tpty M
+35678 murugan chi M
+20153 neelamangala nlr M
+
+output:--
+1nlr M 1
+1tpty M 1
+2rcr F 1
+2glb M 1
+2rcr M 2
+3mdr F 1
+3chi M 1
+
+here in input, there is no state field. but first number in voterid card will represent state

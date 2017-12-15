@@ -1,0 +1,5 @@
+Tom,Bangalore,12345,Hadoop
+Mary,NewYork,7674764,Spark
+Neil,SaoPolo,847464744,Cassandra
+Jim,Sanfrancisco,2366444,Storm
+Tina,Fargo,8748578,MongoDB

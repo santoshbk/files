@@ -1,0 +1,63 @@
+Copy file from win to linux (via winscp)
+ gzip -d pagecounts......
+     // For extracting .gz files
+
+hadoop fs -put page.... pagecounts
+     // For storing file from Linux to HDFS
+ 
+  wiki
+
+  projectname
+  pagename
+  clicks
+  pagesize
+
+
+Program - 2
+
+Wiki datamining program
+i/p
+en google 30 30000
+en yahoo 50 50000
+us yahoo 60 60000
+en google 70 70000
+
+o/p
+google 100
+yahoo 50
+
+TextInput format
+
+Mapper :--
+i/p:-- key -- offset value -- data
+ 		001 en google 30 30000
+		002 en yahoo 50 50000
+		...	..........
+
+      if(projname.equalsignorecase("en"))
+	{
+                  key -- pagename
+		value -- clicks
+	}
+o/p :--  google 30
+	 yahoo 50
+	google 70
+
+       GROUPING
+
+Reducer:-- 
+i/p:-- google (30,70)
+ 	yahoo (50)
+   			sum=0;
+		     sum=sum+values;
+
+output :-- key -- key value --sum
+		google 100
+		yahoo 50
+
+Create Project (If already project created for First proj, no need)
+create onemore package "com.wikidatamining"
+create 3 classes WikiMapper
+		 WikiReducer
+		 WikiDriver
+

@@ -1,0 +1,49 @@
+Program - 3
+
+Wiki datamining program based on pagesize
+i/p
+en google 30 30000
+en yahoo 50 50000
+us yahoo 60 60000
+en google 70 70000
+
+o/p
+>40000
+google 1
+yahoo 2
+
+TextInput format
+
+Mapper :--
+i/p:-- key -- offset value -- data
+ 		001 en google 30 30000
+		002 en yahoo 50 50000
+		...	..........
+
+      if(Long.parseLong(a[3])>40000)
+	{
+		key -- pagename a[1]
+		value -- 1
+	}
+
+o/p :--  
+	 yahoo 1
+	 yahoo 1
+         google 1
+       GROUPING
+
+Reducer:-- 
+i/p:-- google (1)
+ 	yahoo (1,1)
+   			sum=0;
+		     sum=sum+values;
+
+output :-- key -- key value --sum
+		google 1
+		yahoo 2
+
+Create Project (If already project created for First proj, no need)
+create onemore package "com.wikidatamining2"
+then select mapper reducer driver from package com.wikidatamining right click copy then
+select package2 (com.wikidatamining2) right click paste
+

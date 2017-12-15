@@ -1,0 +1,12 @@
+Hi,
+
+Here in input data, not specified state name but in output we required.
+
+how to identify who is from which state?
+
+Verysimple, in id card number 1st digit will represent the state name
+1 - ap
+2 - ka
+3 - tn
+
+try this...

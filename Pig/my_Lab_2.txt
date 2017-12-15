@@ -1,0 +1,417 @@
+pig -x mapreduce
+
+grunt>
+************************************************************************
+THESE STEPS ARE VARIOUS DATA TRANSFORMATIONS
+
+ 
+ 1. SELECTING SPECIFIC FIELDS FROM THE RELATION
+ 2. APPLYING SPECIFIC FUNCTIONS TO A FIELD
+ 3. SELECTING A SPECIFIC NUMBER OF RECORDS, OR A SPECIFIC NUMBER OF DISTINCT VALUES
+ 4. ORDERING RECORDS BASED ON SOME SPECIFIC COLUMN
+ 5. FILTERING RECORDS BASED ON A CONDITION
+ 6. GROUPING/AGGREGATING DATA BASED ON SPECIFIC COLUMNS
+ 7. JOINING DATA OF ONE RELATION WITH ANOTHER RELATION
+ 8. TRANSFORMING NESTED DATA IN A COLUMN TO MULTIPLE ROWS
+ 9. SAMPLING RECORDS
+************************************************************************************************************************************************************************************************************************
+1...SELECTING SPECIFIC FIELDS FROM THE RELATION
+************************************************************************
+THIS IS DONE USING FOREACH AND GENERATE
+
+  grunt> orders = load 'order_data' using PigStorage(',') as
+         (Order_ID:chararray, Customer_ID:int,
+         Order_Quantity:int,Order_Value:float,Order_Date:chararray,
+         Product_ID:int, Product_Name:chararray);
+
+ grunt > orders_customers = foreach orders generate Order_ID,Customer_ID;
+  grunt>  dump orders_customers
+
+*********************
+   IF WE HAVEN’T SPECIFIED A SCHEMA FOR THE ORDERS TABLE WE WOULD USE THE $ NOTATION TO SELECT COLUMNS
+grunt> orders_customers = foreach orders generate $0,$1;
+grunt>  dump orders_customers
+
+
+****************************************************************************************************************************
+
+HOW DO WE CHOOSE FIELDS FROM COMPLEX DATA TYPES?
+
+ THE TUPLE WAS LOADED USING
+grunt> order_customer = load 'order_customer' as
+       (order_customer_id:tuple(Order_ID:chararray,Customer_ID:int));
+
+grunt >   orders_only=foreach order_customer generate order_customer_id.Order_ID;
+
+grunt> orders_only=foreach order_customer generate order_customer_id.$0;
+
+*************************************
+MAP :::::::::MAP
+
+LET US ASSUME WE LOAD DATA FROM A FILE CALLED MAP_EXAMPLE.TXT
+
+
+grunt >   map_example = load 'map_example.txt' as (Customer_Fields:MAP[chararray]);
+HOW TO GET ‘VALUES’ IN MAP USING ‘KEY’?
+
+grunt> customer_name = foreach map_example generate Customer_Fields#'Customer_Name';
+grunt >   DUMP customer_name
+
+**************************************************************************************************************************
+ 2. APPLYING SPECIFIC FUNCTIONS TO A FIELD
+       
+*************************************************************************************************************************
+FOREACH CAN APPLY EXPRESSIONS OR FORMULAS ALSO TO THE FIELDS
+
+LET’S SAY WE WANT TO COMPUTE THE PRODUCT OF TWO FIELDS
+ grunt> quantity_value_product = foreach orders
+        generate(Order_Quantity * Order_Value) as
+        quantity_value_product,Order_ID,Customer_ID;
+
+****************************************************************
+
+PIG COMES PREPACKAGED WITH  MANY UDFs THAT CAN BE  DIRECTLY USED
+
+THERE ARE 4 TYPES OF BUILT-IN PIG FUNCTIONS
+LOAD
+STORE
+EVALUATE
+FILTER
+
+   *** FILTER FUNCTIONS ARE USED WITH THE FILTER COMMAND
+
+  ** EVALUATION FUNCTIONS ARE THE MOST COMMON UDF FUNCTIONS. EVALUATION FUNCTIONS CAN BE CATEGORISED INTO THE FOLLOWING TYPES
+        MATH FUNCTIONS
+        CHARARRAY  FUNCTIONS
+        AGGREGATE  FUNCTIONS
+        COMPLEX DATA TYPE FUNCTIONS
+        DATETIME FUNCTIONS
+ 
+   $$$$$$MATH FUNCTIONS THESE FUNCTIONS ARE SIMILAR TO JAVA.LANG.MATH  ALL OF THEM ARE SUPPORTED IN PIG
+    @@@@@@@@@   REMEMBER THAT THESE FUNCTION NAMES ARE UPPER CASE
+
+       grunt >   quantity_value_product = foreach orders generate(Order_Quantity * Order_Value) as
+                quantity_value_product,Order_ID,Customer_ID, ROUND(Order_Value) as Trimmed_Value;
+
+   $$$$CHARARRAY FUNCTIONS THESE FUNCTIONS PROVIDE WAYS TO MANIPULATE TEXT FIELDS THESE ARE THE THE CHARARRAY FUNCTIONS SUPPORTED IN           PIG
+
+grunt>quantity_value_product = foreach orders
+generate(Order_Quantity * Order_Value) as
+quantity_value_product,Order_ID,Customer_ID,
+SUBSTRING(Order_ID,2,3) as Order_Number;
+
+
+  $$$$$$$$$4 AGGREGATE FUNCTIONS THESE FUNCTIONS ARE SUPPORTED IN PIG THESE FUNCTIONS WILL BE USED IN GROUP COMMANDS - MORE IN A BIT
+
+
+**********88 COMPLEX DATA TYPE FUNCTIONS THESE FUNCTIONS EXIST TO HELP YOU MANIPULATE COMPLEX DATA TYPES
+
+THESE FUNCTIONS ARE TYPICALLY RUN USING THE FOREACH COMMAND
+
+  grunt>order_customer_map = foreach orders generate(TOMAP(Order_ID,Customer_ID));
+
+ THIS WILL GENERATE A MAP OF ORDER_ID AND CUSTOMER_ID
+Ex2:::   grunt> order_bag = foreach orders generate
+TOBAG(Order_ID,Customer_ID,Order_Quantity,Order_Value,oduct_ID,Product_Name) as Order_Customer_ID;
+
+
+$$$$$$$$$$$$ DATETIME FUNCTIONS
+  THESE FUNCTIONS EXIST TO HELP YOU MANIPULATE THE DATETIME DATA TYPE THE FUNCTION YOU MUST KNOW IS ToDate
+ **THIS FUNCTION IS USED TO TYPECAST OTHER DATA TYPES INTO PIG’S DATETTIME DATA TYPE
+   ** PIG HAS ONLY ONE TIME RELATED DATA TYPE AND ALL THESE FUNCTIONS WILL WORK ONLY ON THAT DATETIME DATA TYPE
+
+WE WILL LOAD THIS TABLE AND TRANSFORM ITS ORDER_DATE FIELD USING THE ToDate FUNCTION
+
+grunt>orders = load 'order_data.csv' using PigStorage(',') as (Order_ID:chararray,
+Customer_ID:int, Order_Quantity:int,Order_Value:float,Order_Date, Product_ID:int,
+Product_Name:chararray);
+
+grunt > time_temp = foreach orders generate Order_ID,Customer_ID,ToDate(Order_Date,'yyyy-mm-dd') as Order_TimeStamp;
+
+  NOW WE CAN USE ANY OF OUR DATETIME FUNCTIONS
+ Error Check?????????
+ grunt>order_month_table = foreach time_temp generate Order_ID,Customer_ID,GetMonth(Order_TimeStamp);
+grunt> dump order_month_table;
+
+???????????????????????????????????????????????????????????????????????
+
+
+************************************************************************************************************************************
+3. SELECTING A SPECIFIC NUMBER OF RECORDS, OR A SPECIFIC NUMBER OF DISTINCT VALUES
+
+THERE ARE TWO IDEAS HERE - DISTINCT VALUES AND A FIXED NUMBER OF ROWS
+ %%%%%%%%% LET US TALK ABOUT DISTINCT VALUES FIRST
+
+********$$*********DISTINCT COMMAND IN PIG HAS LIMITED CAPABILITY IT WORKS ONLY ON ENTIRE RECORDS AND NOT ON INDIVIDUAL FIELDS.
+WE CANNOT DIRECTLY ACT ON THE ORDER_ID FIELD IN THE ORDERS TABLE
+
+grunt> orders_temp = foreach orders generate Order_ID;
+grunt> distinct_orders = distinct orders_temp;
+grunt> dump distinct_orders
+
+*********
+
+NOW LET US TALK ABOUT FIXED NUMBER OF ROWS THIS IS DONE VIA THE “LIMIT” COMMAND FOLLOWED BY RELATION NAME AND N WHERE N IS NUMBER OF ROWS
+**** 
+
+LET US SAY WE WANT TO PRINT ONLY 3 ROWS TO THE SCREEN from Orders relation
+
+grunt> orders_temp = limit orders 3;
+grunt> dump orders_temp;
+****************************************************************************************************************
+4. ORDERING RECORDS BASED ON SOME SPECIFIC COLUMN
+
+****************************************************************************************************************
+
+THIS IS DONE VIA A SIMPLE “ORDER BY” COMMAND
+ *** YOU CAN SPECIFY WHETHER THE ORDER SHOULD BE ASCENDING OR DESCENDING BY DEFAULT IT IS ASCENDING
+
+####  LET US SAY WE WANT TO ORDER realtion  BY “ORDER_ID” IN DESCENDING ORDER
+
+
+grunt> orders_desc = order orders by Order_ID desc;
+grunt> dump orders_desc;
+*****************************************************************************************************************************
+5. FILTERING RECORDS BASED ON A CONDITION
+*****************************************************************************************************************************
+THIS IS DONE VIA THE FILTER COMMAND.
+ THE FILTER STATEMENT IS SIMILAR TO THE WHERE CLAUSE OF SQL
+
+THE FILTER STATEMENT CONTAINS A PREDICATE IF THE PREDICATE IS TRUE FOR A RECORD, THE RECORD BECOMES PART OF THE RESULT DATASET
+(RELATION)  ( >  <   >=   <=  !=    == )
+  ***********8 ALL OF THEM CAN BE APPLIED TO SCALAR DATA TYPES
+   ************ ONLY == AND != APPLY TO MAPS AND TUPLES
+*** NONE OF THEM CAN BE APPLIED TO BAGS
+
+EX::::::::::: LET US SAY WE WANT TO SELECT ONLY THOSE ORDERS WHERE QUANTITY IS GREATER THAN OR EQUAL TO 2
+ Load the orders first::: then 
+grunt> orders = load*************
+grunt> orders_quantity_filter = filter orders by Order_Quantity >=2;
+grunt> dump orders_quantity_filter;
+
+****************************************************
+
+NOW FOR FILTER FUNCTIONS ------------ FILTER FUNCTIONS ARE BUILT-IN UDFs WHICH ARE USED WITH THE FILTER COMMAND
+**********8 SOME IMPORTANT FILTER FUNCTIONS THAT ARE COMMONLY USED ARE
+                     --->   matches 
+                      --->  IsEmpty
+matches IS USED WITH CHARARRAY TO SEE IF THE VALUE MATCHES AN EXPRESSION
+
+*** LET US SAY WE WANT TO SELECT  RECORDS WHERE ORDER_ID=‘ODO2’
+grunt> orders= load ------
+grunt>orders_id_filter = filter orders by Order_ID matches ‘OD02';
+grunt> dump orders_id_filter;
+
+***************
+LET US SAY WE WANT TO SELECT RECORDS WHERE PRODUCT_NAME STARTS WITH 'APPLE IPHONE 4’;
+grunt>product_id_filter = filter orders by Product_Name matches 'Apple iPhone 4.*';
+grunt> dump product_id_filter;
+
+***********8
+IsEmpty-----------THIS IS USED TO CHECK IF THE MAP OR BAG IS EMPTY
+ EACH RECORD OF THIS RELATION IS A BAG
+IF YOU WANT TO REMOVE THOSE RECORDS WHERE THE BAG HAS NOTHING INSIDE IT, WE USE IsEmpty...
+ ***************** BAGS ARE COMPLEX DATA TYPE, THEY CAN’T BE NULL. THEY WILL BE EMPTY ****************
+grunt > product_order_bag = filter order_bag by not IsEmpty(order_customer_id);
+**************************
+LET US CONSIDER A MAP
+****************************
+ EACH RECORD OF THIS RELATION IS A MAP
+IF YOU WANT TO REMOVE THOSE RECORDS WHERE THE MAP HAS NOTHING INSIDE IT, WE USE IsEmpty
+*********************MAP IS COMPLEX DATA TYPE, IT CAN’T BE NULL. IT WILL BE EMPTY
+grunt > map_example_filter = filter map_example by not IsEmpty(Customer_Fields);
+
+
+WHEN YOU ARE LOOKING FOR NULL VALUES YOU USE IS NULL
+
+grunt>null_id_filter = filter orders by Order_ID IS NULL;
+*********************************************************************************************************************************
+Along with all Relational OPERATORS YOU CAN ALSO USE AND, NOT AND OR LOGICAL OPERATORS
+*********************************************************************************************************************************
+
+LET US SAY WE WANT TO SELECT RECORDS WHERE ORDER_ID=‘ODO2’ AND  ORDER_QUANTITY IS  NOT EQUAL TO 1
+
+grunt>orders_id_quantity_filter = filter orders by Order_ID matches 'OD02' and not (Order_Quantity == 1);
+grunt> dump orders_id_quantity_filter;
+
+**********************************************************************************************************************************
+**********************************************************************************************************************************
+
+6. GROUPING/AGGREGATING DATA BASED ON SPECIFIC COLUMNS
+**********************************************************************************************************************************
+**********************************************************************************************************************************
+THIS IS DONE VIA THE GROUP BY COMMAND
+
+THE GROUP BY STATEMENT DOES THE SAME THING AS THE SQL GROUP BY COMMAND..
+THIS IS DONE VIA THE GROUP BY COMMAND  -----------.BUT VERY DIFFERENTLY
+
+LET US SAY WE WANT TO CALCULATE TOTAL ORDER_QUANTITY PER ORDER
+WHAT WOULD BE THE SQL COMMAND FOR THIS?
+SELECT Order_ID, SUM(Order_Quantity)
+FROM Orders
+GROUP BY Order_ID
+
+IN PIG, THIS COMMAND WILL SPLIT INTO 2 PARTS
+FROM Orders
+GROUP BY Order_ID
+ will be done first 
+
+THE CORRESPONDING PIG COMMAND FOR THIS PART IS
+grunt> groupd = group orders BY Order_ID;
+
+NOTICE THAT NO AGGREGATION IS PERFORMED
+*******88GROUP COMMAND SIMPLY COLLECTS ALL THE RECORDS WITH THE SAME KEY (ORDER_ID) AND PUTS THEM IN THE BAG
+grunt> dump groupd;
+
+WHAT IS THE SCHEMA OF THE BAG?
+grunt> describe groupd;
+and then 
+AGGREGATION WILL HAPPEN ON THE RECORDS COMING OUT OF GROUP COMMAND
+WE HAVE TO SUM Order_Quantity
+
+THIS IS DONE IN A SEPARATE COMMAND WHICH OPERATES ON groupd
+grunt> groupd = group orders by Order_ID;
+grunt> aggr_by_order = foreach groupd generate group,SUM(orders.Order_Quantity);
+
+****************THIS PART SAYS THAT WE WILL USE groupd STRUCTURE FOR FINAL COMPUTATION
+*****8SUM IS AN BUILT-IN AGGREGATE FUNCTION WHICH IS USED TO COMPUTE SUM PIG SUPPORTS MANY AGGREGATE FUNCTIONS..
+AND ALL OF THE FUNCTIONS SHOULD BE WRITTEN IN CAPITAL LETTERS
+
+
+WE USED orders.Order_Quantity INSTEAD OF Order_Quantity.........
+Ex2::::::::::::::::LET US SAY WE WANT TO SEE HOW MANY PRODUCTS OUR CUSTOMER BUY
+grunt> groupd = group orders by Customer_ID;
+THEN PERFORM AN AGGREGATE FUNCTION ON GROUPD
+grunt> aggr_by_cust = foreach groupd generate group,
+COUNT(orders.Product_ID) as Total_Products;
+
+
+THEN PERFORM AN AGGREAGATE FUNCTION ON GROUPD
+
+grunt> groupd = Group orders BY Customer_ID;
+grunt> aggr_by_cust = foreach groupd generate group, COUNT(orders.Product_ID) as Total_Products;
+
+
+***************************************************************************************************************************************NULL VALUES IN A GROUP ALL RECORDS WITH THE NULL VALUE IN THE KEY ARE GROUPED TOGETHER
+**************************************************************************************************************************************
+7. JOINING DATA OF ONE RELATION WITH ANOTHER RELATION
+**************************************************************************************************************************************
+**************************************************************************************************************************************
+JOINING TWO DATA SETS IS AT THE HEART OF DATA TRANSFORMATIONS  --------JOIN BY'----------
+LIKE HIVE, PIG PROVIDES SUPPORT ONLY FOR EQUI-JOINs
+
+
+grunt>  customers = load 'customer_data.csv' using PigStorage(',') as
+(Customer_ID:int,First_Name:chararray,Second_Name:chararray,
+ Contact_No:Long,Created_Date:chararray,Email_ID:chararray);
+
+
+
+grunt >  orders = load 'order_data.csv' using PigStorage(',') as
+(Order_ID:chararray,Customer_ID:int,Order_Quantity:int,Order_Value:float,Order_Date:chararray, Product_ID:int,Product_Name:chararray);
+
+LET US ASSUME WE WANT TO JOIN THEM ON CUSTOMER_ID
+THE COMMAND TO DO THAT WILL BE
+
+grunt> joined= join customers by Customer_ID,orders by Customer_ID;
+
+WHAT IS THE SCHEMA OF  ‘joined’?
+
+grunt> describe joined;
+
+********************************************************************************************************************
+USING THE FOREACH COMMAND AND KNOWLEDGE OF JOINED SCHEMA, WE CAN WRITE
+grunt> temp = foreach joined generate customers::Customer_ID,customers::Contact_No,orders::Order_ID,orders::Product_ID;
+
+HOWEVER
+grunt> temp = foreach joined generate customers::Customer_ID,Contact_No,Order_ID,Product_ID;
+
+IS ALSO CORRECT AND WILL GIVE THE SAME RESULT WITHOUT :: OPERATIOR
+
+&&&&&& customers:: and orders:: prefix needs to be used only when the field name is not unique
+i.e FIELD NAME IS COMMON IN BOTH TABLES
+
+PIG ALSO SUPPORTS
+---LEFT OUTER JOIN
+---RIGHT OUTER JOIN
+----FULL OUTER JOIN
+----SELF JOIN
+-----CROSS JOIN
+
+OUTER JOIN
+THE RESULT INCLUDES ALL ROWS FROM THE FIRST RELATION ("LEFT OUTER JOIN"), OR THE SECOND RELATION ("RIGHT OUTER JOIN"), OR
+BOTH ("FULL OUTER JOIN”),
+*****WITH NULLS BEING FILLED IN FOR THE MISSING FIELDS
+
+
+LEFT OUTER JOIN IS DONE USING LEFT OUTER COMMAND
+grunt> joined= join customers by Customer_ID left outer,orders by Customer_ID;
+
+PIG SHOULD KNOW THE SCHEMA OF orders Relation BECAUSE NULLS WILL BE FILLED ON RIGHT SIDE
+
+*********** RIGHT OUTER JOIN IS DONE USING RIGHT OUTER COMMAND
+
+grunt> joined= join customers by Customer_ID right outer,orders by Customer_ID;
+
+FULL OUTER JOIN IS DONE USING FULL OUTER COMMAND
+grunt> joined= join customers by Customer_ID full outer,orders by Customer_ID;
+
+((((((((((((((
+SELF JOINS ARE SUPPORTED BUT THE DATA WILL NEED TO BE LOADED TWICE:-
+grunt> orders1 = load 'order_data.csv' using PigStorage(',') as (Order_ID:chararray,Customer_ID:int,Order_Quantity:int);
+grunt> orders2 = load 'order_data.csv' using PigStorage(',') as (Order_ID:chararray,Customer_ID:int,Order_Quantity:int);
+
+grunt> joined= join orders1 by Customer_ID,orders2 by Customer_ID;  
+ THIS WILL WORK!
+
+BUT 
+grunt> joined= join orders by Customer_ID,orders by Customer_ID;
+  THIS WILL NOT WORK!BECAUSE THE SAME RELATION orders CANNOT BE USED ON BOTH SIDES OF THE JOIN This is a quirk of Pig
+**************************************************************************************
+CROSS JOIN IS BASICALLY CARTESIAN PRODUCT OF TWO RELATIONS
+IF RELATION A HAS N ROWS AND B HAS M ROWS, CROSS JOIN OF A AND B WILL HAVE (NXM) ROWS
+CROSS JOIN GENERATES A LOT OF DATA -----------------.>BE CAREFUL USING IT
+
+grunt> crossed= cross customers,orders;
+
+
+CROSS CAN BE VERY USEFUL IF WE WANT TO DO NON EQUIJOINS
+
+LET US SAY WE WANT TO FIND THE INVALID ORDERS IN ORDER DATA INVALID ORDERS ARE THOSE ORDERS WHERE CUSTOMER’S ACCOUNT CREATED DATE IS
+GREATER THAN ORDER DATE
+
+
+grunt> crossed= cross customers,orders;
+grunt>invalid_orders = filter crossed by customers::Created_Date >= orders::Order_Date;
+grunt>invalid_orders_list = foreach invalid_orders generate Order_ID;
+
+
+********************************************
+in addition to the JOIN OPERATIONS  ---PIG ALSO SUPPORTS UNION
+
+**********UNION CONCATENATES TWO DATASETS UNION DOES NOT REMOVE DUPLICATE RECORDS
+grunt> file1 = load ‘/user/navdeepsingh/order_data/order_data/date-1.csv’;
+grunt> file2 = load ‘/user/navdeepsingh/order_data/order_data/date-2.csv’;
+grunt> total_data = union file1,file2;
+
+BOTH FILES HAVE SAME SCHEMA OF ORDERS TABLE
+UNLIKE SQL, UNION IN PIG DOESN’T NEED BOTH THE RELATIONS TO HAVE THE SAME SCHEMA
+IF SCHEMA OF ONE RELATION CAN BE CAST INTO SCHEMA OF OTHER RELATION, THE UNION WILL HAVE THAT SCHEMA
+IF SCHEMA OF ONE RELATION CANNOT BE CAST INTO SCHEMA OF OTHER RELATION, THE UNION WILL HAVE NO SCHEMA
+
+(((((((((((
+UNION ONSCHEMA
+
+grunt> file1 = load '/user/navdeepsingh/sales/sales1' as (Order_ID:Chararray,Customer_ID:int,Order_Quantity:Int,Order_Value:float);
+grunt> file2 = load '/user/navdeepsingh/sales/sales2' as (Order_ID:Chararray,Customer_ID:int,Order_Datetime:Chararray,Order_Value:f
+loat);
+grunt> total_data = union onschema file1,file2;
+grunt> describe total_data;
+
+total_data:
+{Order_ID: bytearray,Customer_ID: int,Order_Quantity: int,Order_Value:
+float,Order_Datetime: chararray}
+
+
+IF NO SHARED SCHEMA CAN BE PRODUCED BY ADDING FIELDS AND CASTING------------->>>>>AN ERROR WILL BE RETURNED
+

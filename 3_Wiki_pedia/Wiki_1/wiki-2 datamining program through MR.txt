@@ -1,0 +1,97 @@
+WikiMapper:--
+package com.wikidatamining;
+
+import java.io.IOException;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Mapper.Context;
+
+public class WikiMapper extends Mapper<LongWritable, Text,Text, LongWritable>
+{  
+    public void map(LongWritable key, Text value, Context output) throws IOException, InterruptedException
+    {
+        String Line= value.toString(); //for storing into string
+        String a[]=Line.split(" ");   // for spli based on space
+        if(a[0].equalsIgnoreCase("en")){
+         output.write(new Text(a[1]), new LongWritable(Long.parseLong(a[2])));
+        }        
+        } 
+     }
+
+
+
+WikiReducer:--
+package com.wikidatamining;
+
+import java.io.IOException;
+
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.Reducer.Context;
+
+public class WikiReducer extends Reducer<Text, LongWritable, Text, IntWritable>
+{
+      public void reduce(Text key, Iterable<LongWritable> value, Context output) throws IOException, InterruptedException
+    {
+        int sum=0;
+        for(LongWritable val:value){
+            sum +=val.get();
+        }
+        output.write(key, new IntWritable(sum));
+    }
+
+}
+
+
+Wiki driver:--
+package com.wikidatamining;
+
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.util.Tool;
+import java.io.IOException;
+
+
+public class WikiDriver{ 
+
+ public static void main(String[] args) throws IOException,ClassNotFoundException, InterruptedException {
+
+        
+        Job job=new Job(new Configuration());
+	job.setJobName("Wiki datamining");
+        job.setJarByClass(WikiDriver.class);
+        
+        job.setInputFormatClass(TextInputFormat.class);
+        
+        
+        job.setMapOutputKeyClass(Text.class);
+        job.setMapOutputValueClass(LongWritable.class);
+        
+
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(IntWritable.class);
+        
+        job.setMapperClass(WikiMapper.class);
+       job.setReducerClass(WikiReducer.class);
+        
+        FileInputFormat.addInputPath(job, new Path(args[0]));
+        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        
+        job.waitForCompletion(true);
+		
+    }
+    
+}

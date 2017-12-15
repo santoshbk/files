@@ -1,0 +1,46 @@
+Input:--
+10101 sasidhar AP nlr M
+20134 nagaraj KA rcr M
+20564 imthiyaz KA glb M
+20189 manjunath KA rcr M
+30178 andal TN mdr F
+28145 lakshmi KA rcr F
+14567 srinivas AP tpty M
+35678 murugan TN chi M
+
+output:--
+AP M 2
+KA F 1
+KA M 3
+TN F 1
+TN M 1
+
+Text input format
+ 
+mapper :-
+ input key - offset value -data
+      		001 10101 sasidhar AP nlr M
+		---------------------
+
+output key -- state+gender  value - 1
+	output.write(new Text(a[2]+" "+a[4]), new...
+		ap m 1
+		ka m 1
+		ka m 1
+		ka m 1
+		ap f 1
+		.....
+
+GROUPING
+
+Reducer:--
+input :--  ap m(1)
+	   ka m (1,1,1)
+
+		sum=sum+values;
+
+	  ap m 1
+	  ka m 3
+
+
+		

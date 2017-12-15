@@ -1,0 +1,649 @@
+
+
+1)      To Check Databases availbale :::
+
+    show databases;
+
+2)    To Create a Database :::
+
+    i)     create database mj;
+
+    ii) show databases;
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+A. Create Database
+------------------
+create database retail;
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  ***  See database Description :::
+
+  hive>>>>    describe database mj;
+                OK
+                mj              hdfs://localhost:8020/user/hive/warehouse/mj.db
+                Time taken: 2.362 seconds
+
+
+   iii) create database mj;
+
+     o/p ::Error : Database mj already  exists
+FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask
+
+
+   iv)   create database if not  exists mj;
+
+
+  v)   *** Creating databases with its comments:::: 
+
+   hive> create database if not exists movies comment 'holds user rating';
+
+    hive> describe database movies;
+   o/P ::: OK
+         movies  holds user rating       hdfs://localhost:8020/user/hive/warehouse/movies.db
+
+   ***** heere Comments are being displayed , ...
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+B. Select Database
+------------------
+use retail;
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+********************************************************************************************
+3)  DFS COMMANDS ::::
+
+
+     hive> dfs -ls /user/hive/warehouse;
+Found 2 items
+drwxr-xr-x   - training supergroup          0 2017-11-03 18:42 /user/hive/warehouse/mj.db
+drwxr-xr-x   - training supergroup          0 2017-11-07 03:58 /user/hive/warehouse/movies.db
+hive>
+
+
+***************************************************************************************************
+4)   How to Drop a Database :::
+
+    ***** hOW TO CHECK WHICH DATABASE IS IN USE NOW :::
+
+cOMMAND :::::    HIVE >>> set hive.cli.print.current.db=true;
+
+
+hive> set hive.cli.print.current.db=true;
+hive (default)>
+              > ;
+hive (default)> use database mj;
+FAILED: ParseException line 1:4 extraneous input 'database' expecting Identifier near '<EOF>'
+
+hive (default)> use mj;
+OK
+Time taken: 0.008 seconds
+hive (mj)>
+**************************************************************************************************************************************
+    **** BY DEFAULT HIVE DOESN'T ALLOW TO DROP A DB IF ANY TABLE IS PRESENT INSIDE IT,  IN THIS CASE TO DROP
+     DATABASE FIRSTLTY WE HAVE TO DELETE all the TABLES FIRST....
+       OR APPEND THE KEYWORD ::::***:::   CASCADE :::::
+
+ *****  drop database movies cascade;
+
+************************************************************************************************************************
+***************************************************************************************************
+hive (default)> use database mj;
+FAILED: ParseException line 1:4 extraneous input 'database' expecting Identifier near '<EOF>'
+
+hive (default)> use mj;
+OK
+Time taken: 0.008 seconds
+hive (mj)>  drop database movies cascade;
+OK
+Time taken: 1.548 seconds
+
+************************************************************************************************************************
+***************************************************************************************************
+****************************************************************************************************************
+
+  Table Creations on HIVE:::::
+ 
+***************************************************************************************************************
+
+  CREATE TABLE students 
+      (age INT,name STRING,address STRING,phoneno INT,course STRING) 
+    ROW FORMAT DELIMITED 
+    FIELDS TERMINATED BY ',';
+****************************************************************************************************************
+  CREATE TABLE employees(depid int, empname string) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
+  CREATE TABLE departments(depid int, depname string) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
+
+***************************************************************************************************
+****************************************************************************************************************
+
+
+create table internal_moviesdat
+  (userid INT,age INT,gendre STRING,occupation STRING,zipcode INT)
+  ROW FORMAT DELIMITED
+  FIELDS TERMINATED BY '|'
+   STORED AS TEXTFILE;
+
+*****************************************************************************************
+hive> describe internal_moviesdata;
+OK
+userid  int
+age     int
+gendre  string
+occupation      string
+zipcode int
+Time taken: 0.43 seconds
+******************************************************************************************
+ OF WE CAN RUN :::::::::::::::: DESCRIBE EXTENDED TABLENAME
+                                DESCRIBE FORMATTED TABLENAME
+******************************************************************************************
+******************************************************************************************
+******************************************************************************************
+
+
+C. Create table for storing transactional records
+-------------------------------------------------
+
+hive (mj)> create table txnrecords(txnno INT, txndate STRING, custno INT, amount DOUBLE,
+          category STRING, product STRING, city STRING, state STRING, spendby STRING)
+          row format delimited fields terminated by ',';
+OK
+Time taken: 0.444 seconds
+
+hive (mj)>  drop database mj;
+FAILED: Error in metadata: InvalidOperationException(message:Database mj is not empty)
+FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask
+
+
+hive (mj)>  drop database mj cascade;
+	OK
+	Time taken: 1.169 seconds
+
+hive (mj)>
+************************************************************************************************************************
+***************************************************************************************************
+
+************************************************************************************************************************
+***************************************************************************************************
+
+
+************************************************************************************************************************
+   UPLOAD DATA ON HDFS ::::
+
+   DOWNLOAD THE DATA FROM MOVIELENS WEBSSITE::
+     GROUPLENS.ORG/DATASETS/MOVIELENS/
+
+ *********dOWNLOAD MOVIELENS100K DATA
+ ******UNZIP IT and upload onto linux m/s and see all files available
+ ****CAT README FILE TO KNOW ABOUT THE DATA::
+  *** lOAD IT INTO HDFS 
+   [training@hadoop ml-100k]$ hadoop fs -copyFromLocal u.user /user/training/
+************
+[training@hadoop ml-100k]$ hdfs dfs -ls /user/training/
+Found 6 items
+-rw-r--r--   1 training supergroup        354 2017-11-05 17:42 /user/training/derby
+drwxr-xr-x   - training supergroup          0 2017-11-03 13:18 /user/training/input
+drwxr-xr-x   - training supergroup          0 2017-11-07 04:14 /user/training/m1
+drwxr-xr-x   - training supergroup          0 2017-11-03 13:21 /user/training/output23
+-rw-r--r--   1 training supergroup         15 2017-11-03 13:23 /user/training/test.txt
+-rw-r--r--   1 training supergroup      22628 2017-11-07 04:50 /user/training/u.user
+*****************
+[training@hadoop ml-100k]$ hadoop fs -cat u.user
+1|24|M|technician|85711
+2|53|F|other|94043
+3|23|M|writer|32067
+4|24|M|technician|43537
+1-- userid
+2-- age
+3-- occupation
+4-- Sex
+5-- zipcode
+  **** ALL are seperated by |   (bar)
+*******************************************
+****************************************************************************************************************
+
+LOADING THE DATA INTO TABLE
+
+******************************************************************************************
+  ****   If Data is available on HDFS then put the keyword INPATH..
+   *** If Data is available on LOCAL SYSTEM then put the keyword  LOCAL INPATH..
+   ***
+******************************************************************************************
+  Loading the data which are already in HDFS::  If Not Load onto HDFS::
+ 
+hive >>  load data inpath '/user/training/movies/u.user' overwrite into table internal_moviesdat;
+
+
+We can check the data on HDFS by ::::::: hdfs dfs -ls /user/hive/warehouse/............
+D. Load the data into the table
+-------------------------------
+
+
+  ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+LOAD DATA LOCAL INPATH 'txns1.txt' OVERWRITE INTO TABLE txnrecords;
+
+Syntax: LOAD DATA LOCAL INPATH '/home/training/Desktop/u.user' OVERWRITE INTO TABLE internal_moviesdat;
+
+   
+   
+Example: LOAD DATA LOCAL INPATH ‘/tmp/students.txt' INTO TABLE students; 
+
+ ??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+
+Verify: SELECT * FROM students;
+
+
+************************************************************************************************************************
+***************************************************************************************************
+LOAD DATA LOCAL INPATH 'ust.txt' INTO TABLE employees;
+
+Verify: SELECT * FROM employees;
+
+
+
+LOAD DATA LOCAL INPATH ‘/tmp/departments.txt' INTO TABLE departments;
+
+
+
+SELECT * FROM departments;
+************************************************************************************************************************
+***************************************************************************************************
+
+
+**************************************************************************************************************************
+E. Describing metadata or schema of the table
+---------------------------------------------
+describe txnrecords;
+
+************************************************************************************************************************
+***************************************************************************************************
+************************************************************************************************************************
+***************************************************************************************************
+Example: DROP TABLE students;
+
+**************************************************************************************************************************
+Internal Table----- IMAGE--- table::::::
+  How to DROP a TABLE::::::::::::::::::::
+
+   drop table internal_moviesdata;
+
+************************************************************************************************************************
+***************************************************************************************************
+
+Alter Table
+
+Syntax: ALTER TABLE <TABLE_NAME> ADD COLUMNS (NEW_COL COL_TYPE);
+ALTER TABLE <TABLE_NAME> DROP [COLUMN] <COL_NAME>
+
+
+Example: ALTER TABLE students ADD COLUMNS (fatherName string);
+Verify: DESCRIBE students;
+age int
+name string
+fatherName string
+
+
+Example: ALTER TABLE students DROP COLUMNS fatherName;
+
+Verify: DESCRIBE students;
+
+Queries with Where Clause
+
+Syntax: SELECT * FROM <TABLE_NAME> WHERE <COLUMN_NAME><OPERATOR><VALUE>
+Example: SELECT * FROM students WHERE age<18;
+
+
+
+
+Group By Queries
+
+Syntax: SELECT <COLUMN_NAME>, count(*) FROM <TABLE_NAME> GROUP BY <COLUMN_NAME>;
+Example: SELECT depid, count(*) FROM employees GROUP BY depid; 1, 1
+************************************************************************************************************************
+***************************************************************************************************
+
+
+F. Counting no of records
+-------------------------
+select count(*) from txnrecords;
+
+
+G. Counting total spending by category of products
+--------------------------------------------------
+select category, sum(amount) from txnrecords group by category;
+
+H. 10 customers
+--------------------
+select custno, sum(amount) from txnrecords group by custno limit 10;
+
+
+************************************************************************************************************************
+***************************************************************************************************
+************************************************************************************************************************
+***************************************************************************************************
+
+
+::::::::::::::::::::::::::::::EXTERNAL TABLE ::::::::::::::::::::::::::::
+  IMAGE:::  
+
+If you want to use existing data without copying it into /user/hive/warehouse then Create EXTERNAL table with LOCATION construct as shown below. Note: Don’t use LOAD after creating table.
+1. Copy file to HDFS
+hadoop fs -mkdir /tmp/table_name
+hadoop fs -put /tmp/employees.txt /tmp/table_name
+2. Create external table and query for rows using select statement
+
+CREATE EXTERNAL TABLE ext(age int, name string) ROW FORMAT DELIMITED FIELD TERMINATED BY ‘,’ LOCATION ‘/tmp/table_name’;
+
+************************************************************************************************************************
+3. Check if the actual File still resides in the given folder
+hadoop fs -cat /tmp/table_name/employees.txt
+4. Also dropping this table will not delete the actual file unlike in Managed tables (Tables created without using Keyword EXTERNAL)
+
+
+
+***************************************************************************************************
+
+
+create EXTERNAL table external_ratings
+  (userid INT,movieid INT,rating INT,unixtime STRING)
+  ROW FORMAT DELIMITED
+  FIELDS TERMINATED BY '\t'
+   STORED AS TEXTFILE
+  location '/user/training/ratings';
+********************************************************
+Now load the data from local file system to the location given
+  
+[training@hadoop ~]$ hdfs dfs -put u.data /user/training/ratings/
+Found 1 items
+-rw-r--r--   1 training supergroup    1979173 2017-11-07 10:17 /user/training/ratings/u.data
+[training@hadoop ~]$
+
+
+
+[training@hadoop ~]$ hdfs dfs -ls /user/training/ratings/
+Found 1 items
+-rw-r--r--   1 training supergroup    1979173 2017-11-07 10:17 /user/training/ratings/u.data
+[training@hadoop ~]$
+****************************************************************************************************************
+****************************************************************************************************************
+   check the command   ::::::::::::::::::: select * from external_ratings;
+
+***********************************************************************************************************
+  Droping an EXTERNAL TABLE::::::::::::::::::::
+   
+  hive >>>>>   drop table external_ratings;
+
+ 
+hive> drop table external_ratings;
+OK
+Time taken: 0.689 seconds
+hive> show tables
+    > ;
+OK
+txnrecords
+Time taken: 0.044 seconds
+
+NOw check it on HDFS--- By 
+
+
+[training@hadoop ~]$ hdfs dfs -ls /user/training/ratings/
+
+
+********************************************************************************************************************************************************
+      DIFFERENCE BETWEEN INTERNAL TABLE AND EXTERNAL TABLES
+
+        INTERNAL TABLE                       EXRERNAL TABLE
+1) HIVE HAS CONTROL OVER DATA                 HIVE HAS NO CONTROL OVER DTA
+2) IF TABLE DELETED - DATA GETS DELETED      IF TABLE DELETED - DATA DON'T GETS DELETED
+3) NOT CONVENIENT WITH OTHER TOOLS ON DATA    NOT CONVENIENT WITH OTHER TOOLS ON DATA  SHARING 
+   SHARING 
+
+**************************************************************************************************************************************************************          ****************************************************************************************************************
+****************************************************************************************************************
+ 
+
+    ==========================
+find sales based on age group
+==========================
+
+create table customer(custno string, firstname string, lastname string, age int,profession string)
+row format delimited
+fields terminated by ',';
+
+load data local inpath '/home/training/custs' into table customer;
+
+create table out1 (custno int,firstname string,age int,profession string,amount double,product string)
+row format delimited                                                                                  
+fields terminated by ',';   
+
+insert overwrite table out1                                                                           
+select a.custno,a.firstname,a.age,a.profession,b.amount,b.product                                     
+from customer a JOIN txnrecords b ON a.custno = b.custno;     
+
+select * from out1 limit 100;
+
+create table out2 (custno int,firstname string,age int,profession string,amount double,product string, level string)
+row format delimited                                                                                  
+fields terminated by ',';   
+
+insert overwrite table out2
+select * , case
+ when age<30 then 'low'
+ when age>=30 and age < 50 then 'middle'
+ when age>=50 then 'old' 
+ else 'others'
+end
+from out1;
+
+
+ select * from out2 limit 100; 
+
+ describe out2;  
+
+create table out3 (level string, amount double)                                                                                   
+row format delimited
+fields terminated by ',';
+
+insert overwrite table out3  
+ select level,sum(amount) from out2 group by level;
+
+  *
+**************************************************************************************************************************************************************               ==============
+simple join
+==============
+
+****emp.txt
+****swetha,250000,Chennai
+****anamika,200000,Kanyakumari
+****tarun,300000,Pondi
+****anita,250000,Selam
+
+
+****email.txt
+****swetha,swetha@gmail.com
+****tarun,tarun@edureka.in
+****nagesh,nagesh@yahoo.com
+****venkatesh,venki@gmail.com
+
+
+create table employee(name string, salary float,city string)
+row format delimited
+fields terminated by ',';
+
+load data local inpath 'emp.txt' into table employee;
+  *********************
+hive> load data local inpath 'emp.txt' overwrite into table employee;
+Copying data from file:/home/training/emp.txt
+Copying file: file:/home/training/emp.txt
+Loading data to table nov7.employee
+rmr: DEPRECATED: Please use 'rm -r' instead.
+Deleted /user/hive/warehouse/nov7.db/employee
+Table nov7.employee stats: [num_partitions: 0, num_files: 1, num_rows: 0, total_size: 86, raw_data_size: 0]
+OK
+Time taken: 0.37 seconds
+
+*******************************************************
+
+
+
+select * from employee where name='tarun';
+
+create table mailid (name string, email string)
+row format delimited
+fields terminated by ',';
+
+
+load data local inpath 'email.txt' into table mailid;
+
+select a.name,a.city,a.salary,b.email from 
+employee a join mailid b on a.name = b.name;
+
+
+o/P ::  swetha  Chennai 250000.0        swetha@gmail.com
+        tarun   Pondi   300000.0        tarun@edureka.in
+Time taken: 21.525 seconds
+
+
+select a.name,a.city,a.salary,b.email from 
+employee a left outer join mailid b on a.name = b.name;
+
+
+
+ o/p ::  anamika Kanyakumari     200000.0        NULL
+         anita   Selam   250000.0        NULL
+         swetha  Chennai 250000.0        swetha@gmail.com
+         tarun   Pondi   300000.0        tarun@edureka.in
+
+
+select a.name,a.city,a.salary,b.email from 
+employee a right outer join mailid b on a.name = b.name;
+
+
+ o/P::  NULL    NULL    NULL            nagesh@yahoo.com
+        swetha  Chennai 250000.0        swetha@gmail.com
+        tarun   Pondi   300000.0        tarun@edureka.in
+        NULL    NULL    NULL            venki@gmail.com
+Time taken: 16.263 seconds
+
+
+
+
+
+select a.name,a.city,a.salary,b.email from 
+employee a full outer join mailid b on a.name = b.name;
+
+o/p:::  anamika Kanyakumari     200000.0        	NULL
+        anita   Selam           250000.0                NULL
+        NULL    NULL            NULL                   nagesh@yahoo.com
+        swetha  Chennai		250000.0               swetha@gmail.com
+        tarun   Pondi  		300000.0               tarun@edureka.in
+        NULL    NULL    	NULL                   venki@gmail.com
+Time taken: 17.183 seconds
+
+
+                                                   
+**************************************************************************************************************************************************************                                                                  
+**************************************************************************************************************************************************************                                                                  
+
+  PARTITIOING OF DATA
+
+create table userdata_nonpart
+  (userid INT,age INT,gendre STRING,occupation STRING,zipcode INT)
+  ROW FORMAT DELIMITED
+  FIELDS TERMINATED BY '|';
+
+
+
+create table userdata_partition
+  (userid INT,age INT,occupation STRING,zipcode INT)
+   partitioned by (gendre STRING)
+  ROW FORMAT DELIMITED
+  FIELDS TERMINATED BY '|';
+
+                                                  
+
+
+LOAD THE DATA:::::
+
+  LOAD DATA LOCAL INPATH '/home/training/ml-100k/u.user' overwrite into table userdata_nonpart;
+  
+  ************** Loading the data for Partitioned TABLE::::::::::::::::::::::::::::::
+
+Loading the data form nonpartitoned table to  Partitioned TABLE
+
+
+    insert overwrite table userdata_partition partition(gendre='F')
+    select userid,age,occupation,zipcode
+    from userdata_nonpart
+    where gendre='F';
+
+**************************************************************************************************************************************************************                                                                  
+check file systems on HDFS and do select * from 
+**************************************************************************************************************************************************************                                                                  
+**************************************************************************************************************************************************************                                                                  
+**************************************************************************************************************************************************************                                                                  
+  NOw CRETE A SEPERATE PARTITION FOr MALE USER
+
+   insert overwrite table userdata_partition partition(gendre='M')
+    select userid,age,occupation,zipcode
+    from userdata_nonpart
+    where gendre='M';
+
+
+
+
+**************************************************************************************************************************************************************                                                                  
+BUCKETING IN HIVE
+**************************************************************************************************************************************************************                                                                  
+**************************************************************************************************************************************************************                                                                  
+**************************************************************************************************************************************************************                                                                  
+  create table userdataMOVIES
+  (userid INT,age INT,gendre STRING,occupation STRING,zipcode INT)
+     ROW FORMAT DELIMITED
+  FIELDS TERMINATED BY '|';
+
+**************************************************************************************************************************************************************                                                                  
+LOADING THE DATA
+**************************************************************************************************************************************************************                                                                  
+
+
+LOAD DATA LOCAL INPATH '/home/training/ml-100k/u.user' into table userdataMOVIES;
+  
+**************************************************************************************************************************************************************                                                                  
+DO SELECT * FROM AND ALSO CHECK ON HDFS ONLY ONE FILE IS THERE .. AS  BUCKETS  DOESN'T SUPPORT BY DEFAULT.... WE NEED TO SET PARAMETER...... 
+**************************************************************************************************************************************************************                                                                  
+**************************************************************************************************************************************************************                                                                  
+  HIVE >>>>>  set hive.enforce.bucketing=true;
+
+then create a bucketed table:::::
+
+  create table usermoviesBUCKET
+  (userid INT,age INT,gendre STRING,occupation STRING,zipcode INT)
+ clustered by (userid) into 2 buckets
+     ROW FORMAT DELIMITED
+  FIELDS TERMINATED BY '|';
+**************************************************************************************************************************************************************                                                                  
+**************************************************************************************************************************************************************                                                                  
+  
+Load the data in the table by buckeing:::
+
+  FROM userdataMOVIES insert overwrite table usermoviesBUCKET
+  select userid,age,gendre,occupation,zipcode;
+**************************************************************************************************************************************************************                                                                  
+   Check the file system  on HDFS and  also check  select * from 
+
+**********************************************************************************************************
+
+
+iNDEX::::::::::::::
+
+CREATE INDEX age_index ON TABLE students(age) AS 'org.apache.hadoop.hive.ql.index.compact.CompactIndexHandler' WITH DEFERRED REBUILD;
+OK
+Time taken: 0.432 seconds
+hive>
+

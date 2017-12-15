@@ -1,0 +1,353 @@
+**********************************
+pig -x mapreduce
+
+[training@hadoop ~]$ pig -x mapreduce
+*****************************************************************
+2017-11-16 02:11:24,017 [main] INFO  org.apache.pig.Main - Apache Pig version 0.11.0-cdh4.7.1 (r: unknown) compiled Nov 18 2014, 09:08:17
+2017-11-16 02:11:24,017 [main] INFO  org.apache.pig.Main - Logging error messages to: /home/training/pig_1510816284016.log
+2017-11-16 02:11:24,057 [main] INFO  org.apache.pig.impl.util.Utils - Default bootup file /home/training/.pigbootup not found
+2017-11-16 02:11:24,275 [main] WARN  org.apache.hadoop.conf.Configuration - mapred.job.tracker is deprecated. Instead, use mapreduce.jobtracker.address
+2017-11-16 02:11:24,275 [main] WARN  org.apache.hadoop.conf.Configuration - fs.default.name is deprecated. Instead, use fs.defaultFS
+2017-11-16 02:11:24,275 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to hadoop file system at: hdfs://localhost:8020
+2017-11-16 02:11:24,279 [main] WARN  org.apache.hadoop.conf.Configuration - mapred.used.genericoptionsparser is deprecated. Instead, use mapreduce.client.genericoptionsparser.used
+2017-11-16 02:11:24,779 [main] WARN  org.apache.hadoop.conf.Configuration - mapred.job.tracker is deprecated. Instead, use mapreduce.jobtracker.address
+2017-11-16 02:11:24,779 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to map-reduce job tracker at: localhost:8021
+2017-11-16 02:11:24,783 [main] WARN  org.apache.hadoop.conf.Configuration - fs.default.name is deprecated. Instead, use fs.defaultFS
+***************************************************
+grunt> fs -ls
+*******************************************************
+Found 13 items
+-rw-r--r--   1 training supergroup         24 2017-11-11 06:44 11
+drwxr-xr-x   - training supergroup          0 2017-11-12 06:34 Sout
+drwxr-xr-x   - training supergroup          0 2017-11-12 07:12 Sout1
+-rw-r--r--   1 training supergroup      22628 2017-11-12 06:06 anil
+-rw-r--r--   1 training supergroup        354 2017-11-05 17:42 derby
+-rw-r--r--   1 training supergroup         86 2017-11-10 05:44 emp
+drwxr-xr-x   - training supergroup          0 2017-11-03 13:18 input
+drwxr-xr-x   - training supergroup          0 2017-11-07 04:14 m1
+drwxr-xr-x   - training supergroup          0 2017-11-03 13:21 output23
+drwxr-xr-x   - training supergroup          0 2017-11-07 13:31 ratings
+-rw-r--r--   1 training supergroup         35 2017-11-14 10:06 samplepig1
+drwxr-xr-x   - training supergroup          0 2017-11-12 06:30 shakespeare
+-rw-r--r--   1 training supergroup         15 2017-11-03 13:23 test.txt
+grunt>
+*******************************************
+grunt> cat 11
+*******************************************************************************
+This is the filrst File
+grunt>orders = load 'temp.txt' using PigStorage(',');
+grunt> dump orders
+*********************************************************************************
+
+Input(s):
+Successfully read 1 records (378 bytes) from: "hdfs://localhost:8020/user/training/test.txt"
+
+Output(s):
+Successfully stored 1 records (20 bytes) in: "hdfs://localhost:8020/tmp/temp-1725282090/tmp-602542615"
+
+Counters:
+Total records written : 1
+Total bytes written : 20
+Spillable Memory Manager spill count : 0
+Total bags proactively spilled: 0
+Total records proactively spilled: 0
+
+Job DAG:
+job_1510816219489_0001
+
+
+2017-11-16 02:23:44,703 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - Success!
+2017-11-16 02:23:44,705 [main] WARN  org.apache.hadoop.conf.Configuration - fs.default.name is deprecated. Instead, use fs.defaultFS
+2017-11-16 02:23:44,706 [main] WARN  org.apache.hadoop.conf.Configuration - mapred.job.tracker is deprecated. Instead, use mapreduce.jobtracker.address
+2017-11-16 02:23:44,714 [main] INFO  org.apache.hadoop.mapreduce.lib.input.FileInputFormat - Total input paths to process : 1
+2017-11-16 02:23:44,714 [main] INFO  org.apache.pig.backend.hadoop.executionengine.util.MapRedUtil - Total input paths to process : 1
+(Hi how are you)
+
+********************************************************************************
+temp.txt::
+1,'gandhi',100
+2,'Manish',500
+3,'mohan',400
+4,NULL,NULL
+
+
+grunt> orders = load 'temp.txt' using PigStorage(',');
+grunt> dump orders
+*********************************************************************************
+(1,'gandhi',100)
+(2,'Manish',500)
+(3,'mohan',400)
+(4,NULL,NULL)
+********************************************************************************
+Reading the data from multiple files at a time...:::::::::::::::
+PIG WILL READ FROM BOTH THE FILES IF YOU USE THE DIRECTORY NAME
+
+grunt> orders = load 'order_data' using PigStorage(',');
+grunt> dump orders
+
+(OD01,1,1,450,2016-01-24,1,Apple iPhone 4S)
+(OD01,1,1,450,2016-01-24,2,Apple iPhone 5S)
+(OD01,1,1,450,2016-01-24,3,Apple iPhone 6)
+(OD02,2,2,400,2016-01-24,1,Apple iPhone 4S)
+(OD02,2,2,400,2016-01-24,2,Apple iPhone 5S)
+(OD02,2,2,400,2016-01-24,3,Apple iPhone 6)
+(OD03,2,1,350,2016-01-25,1,Apple iPhone 4S)
+(OD03,2,1,350,2016-01-25,2,Apple iPhone 5S)
+(OD03,2,1,350,2016-01-25,3,Apple iPhone 6)
+(OD03,2,1,350,2016-01-25,3,Apple iPhone 6)
+(OD04,3,1,500,2016-01-25,1,Apple iPhone 4S)
+(OD04,3,1,500,2016-01-25,2,Apple iPhone 5S)
+(OD04,3,1,500,2016-01-27,3,Apple iPhone 6)
+(OD05,4,1,650,2016-01-26,1,Apple iPhone 4S)
+(OD05,4,1,650,2016-01-27,2,Apple iPhone 5S)
+(OD05,4,1,650,2016-01-27,3,Apple iPhone 6)
+**************************************************************************************
+If schema is available we can mention them::::::::::::::
+
+grunt> orders = load 'order_data' using PigStorage(',')
+       as (Order_ID:chararray,
+	   Customer_ID:int,
+           Order_Quantity:int,
+           Order_Value:float,
+           Order_Date:chararray,
+           Product_ID:int,
+           Product_Name:chararray);
+grunt> dump orders
+
+(OD01,1,1,450.0,2016-01-24,1,Apple iPhone 4S)
+(OD01,1,1,450.0,2016-01-24,2,Apple iPhone 5S)
+(OD01,1,1,450.0,2016-01-24,3,Apple iPhone 6)
+(OD02,2,2,400.0,2016-01-24,1,Apple iPhone 4S)
+(OD02,2,2,400.0,2016-01-24,2,Apple iPhone 5S)
+(OD02,2,2,400.0,2016-01-24,3,Apple iPhone 6)
+(OD03,2,1,350.0,2016-01-25,1,Apple iPhone 4S)
+(OD03,2,1,350.0,2016-01-25,2,Apple iPhone 5S)
+(OD03,2,1,350.0,2016-01-25,3,Apple iPhone 6)
+(OD03,2,1,350.0,2016-01-25,3,Apple iPhone 6)
+(OD04,3,1,500.0,2016-01-25,1,Apple iPhone 4S)
+(OD04,3,1,500.0,2016-01-25,2,Apple iPhone 5S)
+(OD04,3,1,500.0,2016-01-27,3,Apple iPhone 6)
+(OD05,4,1,650.0,2016-01-26,1,Apple iPhone 4S)
+(OD05,4,1,650.0,2016-01-27,2,Apple iPhone 5S)
+(OD05,4,1,650.0,2016-01-27,3,Apple iPhone 6)
+grunt>
+*******************************************************************************************
+DATATYPES::::::::::::::::
+*******************************************************************************************
+HOW DO YOU LOAD A TUPLE?
+grunt> order_customer = load 'order_customer' as
+       (order_customer_id:
+        tuple(Order_ID:chararray,Customer_ID:int));
+Input:::
+(OD01,1)
+
+(OD01,1)
+
+(OD01,1)
+
+(OD02,2)
+
+(OD02,2)
+
+(OD02,2)
+
+(OD03,2)
+
+(OD03,2)
+
+(OD03,2)
+
+(OD03,2)
+
+(OD04,3)
+
+(OD04,3)
+
+(OD04,3)
+
+(OD05,4)
+
+(OD05,4)
+
+(OD05,4)
+
+grunt> dump order_customer
+((OD01,1))
+((OD01,1))
+((OD01,1))
+((OD02,2))
+((OD02,2))
+((OD02,2))
+((OD03,2))
+((OD03,2))
+((OD03,2))
+((OD03,2))
+((OD04,3))
+((OD04,3))
+((OD04,3))
+((OD05,4))
+((OD05,4))
+((OD05,4))
+*************************************************************************************
+H
+
+*****************************************************
+HOW WOULD YOU LOAD ‘MAP’ DATA TYPE?
+
+grunt> oxford_dictionary = load 'oxford_dictionary'
+as(Word_ID:long,
+Page_ID:int,
+Dictionary:map[chararray]);
+
+
+grunt> dump  oxford_dictionary
+
+   (1,1,[sports#’game’])
+   (2,1,[happy#’jolly’])
+
+*********************************************************************************
+WE COULD ALSO PARTIALLY SPECIFY THE SCHEMA WE CAN MENTION ONLY FIRST FEW FIELDS IN THE LOAD STATEMENTS
+grunt> orders = load 'order_data' using PigStorage(',')
+as (Order_ID,
+Customer_ID,
+Order_Quantity,
+Order_Value,
+Order_Date,
+Product_ID,
+Product_Name);
+
+(OD01,1,1,450,2016-01-24,1,Apple iPhone 4S)
+(OD01,1,1,450,2016-01-24,2,Apple iPhone 5S)
+(OD01,1,1,450,2016-01-24,3,Apple iPhone 6)
+(OD02,2,2,400,2016-01-24,1,Apple iPhone 4S)
+(OD02,2,2,400,2016-01-24,2,Apple iPhone 5S)
+(OD02,2,2,400,2016-01-24,3,Apple iPhone 6)
+(OD03,2,1,350,2016-01-25,1,Apple iPhone 4S)
+(OD03,2,1,350,2016-01-25,2,Apple iPhone 5S)
+(OD03,2,1,350,2016-01-25,3,Apple iPhone 6)
+(OD03,2,1,350,2016-01-25,3,Apple iPhone 6)
+(OD04,3,1,500,2016-01-25,1,Apple iPhone 4S)
+(OD04,3,1,500,2016-01-25,2,Apple iPhone 5S)
+(OD04,3,1,500,2016-01-27,3,Apple iPhone 6)
+(OD05,4,1,650,2016-01-26,1,Apple iPhone 4S)
+(OD05,4,1,650,2016-01-27,2,Apple iPhone 5S)
+(OD05,4,1,650,2016-01-27,3,Apple iPhone 6)
+
+
+*********************************************************************************
+grunt> oxford_dictionary = load 'oxford_dictionary'
+       as(Word_ID:long,
+       Page_ID:int,
+        Dictionary:map[]);
+grunt> dump oxford_dictionary
+
+
+(1,1,[sports#’game’])
+(2,1,[happy#’jolly’])
+
+
+
+
+************************************************************************************
+grunt> orders = load 'order_data' using PigStorage(',')
+as (Order_ID:chararray,
+Customer_ID:int);
+
+grunt> dump orders
+(OD01,1)
+(OD01,1)
+(OD01,1)
+(OD02,2)
+(OD02,2)
+(OD02,2)
+(OD03,2)
+(OD03,2)
+(OD03,2)
+(OD03,2)
+(OD04,3)
+(OD04,3)
+(OD04,3)
+(OD05,4)
+(OD05,4)
+(OD05,4)
+*************************************************************************************8
+LET US SAY WE MENTIONED ONE SCHEMA AND LOADER FOUND ANOTHER ONE
+We know that :::
+
+grunt> orders = load 'order_data' using PigStorage(',');
+
+grunt> relation_1 = foreach orders generate $1,$2*10.0,$3/100;
+grunt> dump relation_1
+
+(1,10.0,4)
+(1,10.0,4)
+(1,10.0,4)
+(2,20.0,4)
+(2,20.0,4)
+(2,20.0,4)
+(2,10.0,3)
+(2,10.0,3)
+(2,10.0,3)
+(2,10.0,3)
+(3,10.0,5)
+(3,10.0,5)
+(3,10.0,5)
+(4,10.0,6)
+(4,10.0,6)
+(4,10.0,6)
+
+grunt> relation_2 = filter orders by $0=='OD01';
+grunt> dump relation_2
+
+(OD01,1,1,450,2016-01-24,1,Apple iPhone 4S)
+(OD01,1,1,450,2016-01-24,2,Apple iPhone 5S)
+(OD01,1,1,450,2016-01-24,3,Apple iPhone 6)
+
+
+grunt> relation_3 = filter orders by $1 > 1 ;
+
+(OD02,2,2,400,2016-01-24,1,Apple iPhone 4S)
+(OD02,2,2,400,2016-01-24,2,Apple iPhone 5S)
+(OD02,2,2,400,2016-01-24,3,Apple iPhone 6)
+(OD03,2,1,350,2016-01-25,1,Apple iPhone 4S)
+(OD03,2,1,350,2016-01-25,2,Apple iPhone 5S)
+(OD03,2,1,350,2016-01-25,3,Apple iPhone 6)
+(OD03,2,1,350,2016-01-25,3,Apple iPhone 6)
+(OD04,3,1,500,2016-01-25,1,Apple iPhone 4S)
+(OD04,3,1,500,2016-01-25,2,Apple iPhone 5S)
+(OD04,3,1,500,2016-01-27,3,Apple iPhone 6)
+(OD05,4,1,650,2016-01-26,1,Apple iPhone 4S)
+(OD05,4,1,650,2016-01-27,2,Apple iPhone 5S)
+(OD05,4,1,650,2016-01-27,3,Apple iPhone 6)
+*********************************************************
+**THE COMMAND THAT IS USED TO PUT DATA  INTO A FILE IS CALLED ‘STORE’
+***BY DEFAULT, THE COMMAND STORES THE RELATION ORDERS TO YOUR HOME DIRECTORY ON HDFS USING PIGSTORAGE
+
+
+grunt> orders = load 'order_data' using PigStorage(',');
+grunt> store orders into 'orders5';
+
+
+Input(s):
+Successfully read 16 records (1128 bytes) from: "hdfs://localhost:8020/user/training/order_data"
+
+Output(s):
+Successfully stored 16 records (666 bytes) in: "hdfs://localhost:8020/user/training/orders5"
+grunt> fs -ls
+Found 20 items
+-
+drwxr-xr-x   - training supergroup          0 2017-11-16 03:47 orders5
+drwxr-xr-x   - training supergroup          0 2017-11-03 13:21 output23
+drwxr-xr-x   - training supergroup          0 2017-11-16 03:11 oxford_dictionary
+drwxr-xr-x   - training supergroup          0 2017-11-07 13:31 ratings
+
+***************************************************************************************
+TAB DELIMITED FILE IN A FOLDER WITH NAME 'orders' YOU CAN SPECIFY A DIFFERENT DIRECTORY
+grunt> orders = load 'order_data' using PigStorage(',');
+grunt> store orders into '/users/new_user/orders';
+********************************************************************************************
+
+YOU CAN STORE DATA INTO COMMA SEPARATED TEXT DATA USING PIGSTORAGE
+
+grunt> orders = load 'order_data' using PigStorage(',');
+grunt> store orders into 'orders' using PigStorage(',');
