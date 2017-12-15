@@ -1,0 +1,409 @@
+
+
+
+scala> 1+4
+res0: Int = 5
+
+scala> 9-2
+res1: Int = 7
+
+scala> 1-2
+res2: Int = -1
+
+scala> var name:String="manish"
+name: String = manish
+
+scala> var pincode:Int=560078
+pincode: Int = 560078
+
+scala> var course="Spark"
+course: String = Spark
+
+scala> var fee=299
+fee: Int = 299
+
+scala> var fee=700
+fee: Int = 700
+
+scala> val b=99
+b: Int = 99
+
+scala> val b=98
+b: Int = 98
+
+scala> b=101
+<console>:25: error: reassignment to val
+       b=101
+        ^
+
+scala> fee=199
+fee: Int = 199
+
+scala> fee
+res3: Int = 199
+
+scala> val(name,age)=pair("ram",19)
+<console>:25: error: not found: value pair
+       val(name,age)=pair("ram",19)
+                     ^
+
+scala> val(name,age)=pair("manish",29)
+<console>:25: error: not found: value pair
+       val(name,age)=pair("manish",29)
+                     ^
+
+scala> val(name,age)= Pair("manish",29)
+warning: there was one deprecation warning; re-run with -deprecation for details
+name: String = manish
+age: Int = 29
+
+scala> val(name,age)= Pair("mani",79)
+warning: there was one deprecation warning; re-run with -deprecation for details
+name: String = mani
+age: Int = 79
+********************************************
+scala> if (b<99)
+     | {
+     | Println("This is less than 99")
+     | }
+<console>:28: error: not found: value Println
+       Println("This is less than 99")
+       ^
+
+scala> println("This is less than 99")
+This is less than 99
+
+scala> if (b<99)
+     | {
+     | println("this is less than 99")
+     | }else
+     | println("This is greter than or equal to 99")
+this is less than 99
+
+scala> b=98
+<console>:25: error: reassignment to val
+       b=98
+        ^
+
+scala> val c=100
+c: Int = 100
+
+scala> if (c<99)
+     | {
+     | println("This is greter than or equal to 99")
+     | }else
+     | println("This is than or equal to 99")
+This is than or equal to 99
+
+scala>
+*****************************************************************
+scala> var price=12.09
+price: Double = 12.09
+
+scala> var Id=100
+Id: Int = 100
+
+
+scala> var product="phone"
+product: String = phone
+
+scala> var fs=println("The Product %f with %d of cost %f",product,Id,price)
+(The Product %f with %d of cost %f,phone,100,12.09)
+fs: Unit = ()
+
+***************************************************************
+Concatenation::::
+
+scala> var str1="manish"
+str1: String = manish
+
+scala> var str2="Singh"
+str2: String = Singh
+
+scala> var str=str1+str2
+str: String = manishSingh
+
+************************************************************
+String Builder
+
+scala> var builder = StringBuilder.newBuilder
+builder: StringBuilder =
+
+scala> builder.append("Cat")
+res13: StringBuilder = Cat
+
+scala> builder.append("TOM")
+res14: StringBuilder = CatTOM
+
+scala> println(builder)
+CatTOM
+
+scala>
+***********  Scala has method to convert string Buider to string
+
+scala> val result=builder.toString()
+result: String = CatTOM
+
+************************************************************
+scala> val b1=new StringBuilder
+b1: StringBuilder =
+
+scala> b1.append("I Like Spark")
+res16: StringBuilder = I Like Spark
+
+scala> b1.replace(0,1,"we")
+res17: StringBuilder = we Like Spark
+
+scala>
+*******************************************************************************
+Array Declation:::::::::::
+scala> var course:Array[String]=new Array[String](3)
+course: Array[String] = Array(null, null, null)
+
+Assign Values:: to the array:::
+scala> course(0)="Spark"
+
+scala> course(1)="RDBMS"
+
+scala> course(2)="JAVA"
+
+scala> course
+res21: Array[String] = Array(Spark, RDBMS, JAVA)
+
+*************
+Ex2:::
+
+
+scala> var course2:Array[String]=new Array[String](5)
+course2: Array[String] = Array(null, null, null, null, null)
+
+
+
+***************************************
+If We want to create array with value appended at the same time....
+
+scala> var a1=Array("Spark","Scala","JAVA")
+a1: Array[String] = Array(Spark, Scala, JAVA)
+
+scala> a1
+res25: Array[String] = Array(Spark, Scala, JAVA)
+*************************************
+*************************************
+For Loop
+scala> for(i<-mylist){
+     | println(i)
+     | }
+1
+2
+3
+4
+5
+
+scala>
+scala> for(i<-0 to (mylist.length-1))
+     | {
+     | println(mylist(i))
+     | }
+1
+2
+3
+4
+5
+**********************************
+scala> for(i<-0 to (mylist.length-1)){
+     | if(mylist(i)>max) max=mylist(i)
+     | }
+
+scala> max
+res33: Int = 5
+
+**********************************************************
+  If We wan to Create an array 
+
+scala> var myarray=1 to 10001 toArray
+warning: there was one feature warning; re-run with -feature for details
+myarray: Array[Int] = Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 17...
+scala> myarray
+res34: Array[Int] = Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176,...
+scala>
+***************************************************************
+***************************************************************
+***************************************************************
+***************************************************************
+***************************************************************
+Declation of a Function in Scala
+***************************************************************
+***************************************************************
+
+scala> def halfmaker(value:Int):Double=value.toDouble/2
+halfmaker: (value: Int)Double
+
+scala> println(halfmaker(10))
+5.0
+
+********
+Ex2:::
+scala> def addfire(value:Int):Int=value+5
+addfire: (value: Int)Int
+
+scala> println(addfire(10))
+15
+
+
+********************
+Ex3::
+
+scala> def Processrange(start:Int,finish:Int,processor:Int):Unit={
+     | for(i<-start to finish)
+     | println(i)
+     | }
+Processrange: (start: Int, finish: Int, processor: Int)Unit
+
+*********
+
+
+scala> Processrange(1,5,0)
+1
+2
+3
+4
+5
+*****************************
+****************************************************************
+**************************************************************
+Recursion
+
+
+
+
+(************ Anonymous fun:::::::::::::
+scala> var f1=(x:Int) =>x+1
+f1: Int => Int = <function1>
+
+scala> f1(9)
+res39: Int = 10
+
+scala> var b=f1(9)+12
+b: Int = 22
+
+*************************
+scala> {i:Int =>
+     | println("hello World")
+     | 1+2
+     | }
+res40: Int => Int = <function1>
+
+scala> res40(9)
+hello World
+res45: Int = 3
+
+****************************************************************
+*****************************************************************Partial Implementation
+***************************************************************
+scala> def adder(m:Int,n:Int)=m+n
+
+adder: (m: Int, n: Int)Int
+
+scala> val add2=adder(2,_:Int)
+add2: Int => Int = <function1>
+
+scala> println(add2(3))
+5
+
+******************************************************
+Closure or Curried Function
+
+scala> def add(x:Int)=(y:Int)=>x+y
+add: (x: Int)Int => Int
+
+scala> add(11)(2)
+res49: Int = 13
+
+*******
+
+scala> val multiplier=(i:Int)=>1*10
+multiplier: Int => Int = <function1>
+
+scala> multiplier(50)
+res50: Int = 10
+
+
+***************
+Instead of I we can declare a value 9
+
+scala> var i=9;
+i: Int = 9
+
+scala> val multiplier=(x:Int)=>i*x
+multiplier: Int => Int = <function1>
+
+scala> multiplier(50)
+res51: Int = 450
+
+scala>
+scala> i=4
+i: Int = 4
+
+scala> multiplier(50)
+res52: Int = 200
+
+
+*********************************************************************************************************************************************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
